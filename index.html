@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Cracking Alkane Game</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #e9f2f3;
+  text-align: center;
+}
+
+#startScreen, #game {
+  margin-top: 40px;
+}
+
+#lab {
+  margin: 30px auto;
+  padding: 20px;
+  width: 80%;
+  background: #ffffff;
+  border: 2px solid #ccc;
+}
+
+.molecule {
+  cursor: crosshair;
+  display: inline-block;
+}
+
+.atom {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 4px;
+}
+
+.C {
+  background: black;
+}
+
+.bond {
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  background: gray;
+  margin-bottom: 12px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+progress {
+  width: 300px;
+  height: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MÀN HÌNH CHỜ -->
+<div id="startScreen">
+  <h1>CRACKING ALKANE LAB</h1>
+  <p>Mô phỏng phản ứng Cracking Alkane bằng súng năng lượng</p>
+  <button onclick="startGame()">ENTER LAB</button>
+</div>
+
+<!-- GAME -->
+<div id="game" style="display:none;">
+  <p>Click vào phân tử để bắn súng cracking</p>
+
+  <p>Năng lượng súng:</p>
+  <progress id="energyBar" value="0" max="100"></progress>
+
+  <h2 id="levelText"></h2>
+
+  <div id="lab"></div>
+
+  <p id="result"></p>
+
+  <button id="restartBtn" onclick="restartGame()" style="display:none;">
+    CHƠI LẠI
+  </button>
+</div>
+
+<script>
+/* ====== START GAME ====== */
+function startGame() {
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+}
+
+/* ====== BIẾN GAME ====== */
+let level = 1;
+let carbons = 10;   // bắt đầu từ C10 để nhiều level
+let energy = 0;
+
+/* ====== VẼ PHÂN TỬ ====== */
+function drawMolecule(c) {
+  let html = "<div class='molecule' onclick='shoot()'>";
+  for (let i = 0; i < c; i++) {
+    html += "<div class='atom C'></div>";
+    if (i < c - 1) html += "<div class='bond'></div>";
+  }
+  html += "</div>";
+
+  document.getElementById("lab").innerHTML = html;
+  document.getElementById("levelText").innerText =
+    "Level " + level + ": Alkane C" + c + "H" + (2*c + 2);
+}
+
+drawMolecule(carbons);
+
+/* ====== NẠP NĂNG LƯỢNG ====== */
+setInterval(() => {
+  if (energy < 100) energy += 4;
+  document.getElementById("energyBar").value = energy;
+}, 400);
+
+/* ====== BẮN CRACKING ====== */
+function shoot() {
+  if (energy < 50) {
+    document.getElementById("result").innerText =
+      "❌ Năng lượng chưa đủ, phân tử không vỡ!";
+    return;
+  }
+
+  energy = 0;
+
+  if (carbons <= 2) {
+    document.getElementById("result").innerText =
+      "🎉 Hoàn thành chuỗi cracking!";
+    document.getElementById("restartBtn").style.display = "inline-block";
+    return;
+  }
+
+  let remain = carbons - 2;
+
+  document.getElementById("result").innerText =
+    "💥 Cracking tạo ra: Alkene C2H4 + Alkane C" +
+    remain + "H" + (2*remain + 2);
+
+  carbons = remain;
+  level++;
+  drawMolecule(carbons);
+}
+
+/* ====== CHƠI LẠI ====== */
+function restartGame() {
+  level = 1;
+  carbons = 10;
+  energy = 0;
+
+  document.getElementById("result").innerText = "";
+  document.getElementById("restartBtn").style.display = "none";
+  drawMolecule(carbons);
+}
+</script>
+
+</body>
+</html>
